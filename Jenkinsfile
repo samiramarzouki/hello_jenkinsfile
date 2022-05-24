@@ -1,6 +1,7 @@
 pipeline {
-node {    
-      def app     
+agent any    
+      stages {
+            
       stage('Clone repository') {               
              
             checkout scm    
