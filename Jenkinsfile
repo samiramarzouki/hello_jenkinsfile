@@ -1,26 +1,33 @@
-pipeline {
-agent any    
-      stages {
-            
-      stage('Clone repository') {               
-             
-            checkout scm    
-      }     
-      stage('Build image') {         
+pipeline{
+    agent any
+    options{
+        buildDiscarder(logRotator(numToKeepStr: '5', daysToKeepStr: '5'))
+        timestamps()
+    }
+    environment{
+        
+        image_tag='docker.pkg.github.com/ashidubey/docker/cockpitapp:${GIT_COMMIT}'
+        cred=credentials('github')
+        
+    }
+    
+    stages{
+        
        
-            app = docker.build("ashidubey/cockpitapp")    
-       }     
-      stage('Test image') {           
-            app.inside {            
-             
-             sh 'echo "Tests passed"'        
-            }    
-        }     
-       stage('Push image') {
-                                                  docker.withRegistry('https://registry.hub.docker.com', 'git') {            
-       app.push("${env.BUILD_NUMBER}")            
-       app.push("latest")        
-              }    
-           }
+        stage("Building docker image")
+        {
+            steps{
+                sh "docker build -t $image_tag ."
+            }
         }
+        stage("push image to github repo")
+        {
+            steps{
+                sh """ 
+                echo $cred_PSW | docker login docker.pkg.github.com -u $cred_USR --password-stdin 
+                docker push $image_tag
+                """
+            } 
+        }
+    }
 }
