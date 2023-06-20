@@ -6,7 +6,7 @@ pipeline{
     }
     environment{
         
-        image_tag='docker.pkg.github.com/ashidubey/docker/cockpitapp:${GIT_COMMIT}'
+        image_tag='docker.pkg.github.com/samira1/hello_jenkinsfile/cockpitapp:${GIT_COMMIT}'
         cred=credentials('github-new')
         
     }
